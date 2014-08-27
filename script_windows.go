@@ -1,5 +1,5 @@
 //
-// go.binfmt :: binfmt_test.go
+// go.binfmt :: script_windows.go
 //
 //   Copyright (c) 2014 Akinori Hattori <hattya@gmail.com>
 //
@@ -24,44 +24,70 @@
 //   SOFTWARE.
 //
 
-package binfmt_test
+package binfmt
 
 import (
-	"fmt"
-	"io/ioutil"
-	"testing"
-
-	"github.com/hattya/go.binfmt"
+	"bufio"
+	"io"
+	"os"
+	"os/exec"
+	"strings"
 )
 
-func TestCommand(t *testing.T) {
-	cmd := binfmt.Command("go", "version")
-	if err := testArgs(cmd.Args, []string{"go", "version"}); err != nil {
-		t.Error(err)
+func script(r io.Reader, args []string) *exec.Cmd {
+	br := bufio.NewReader(r)
+	// check #!
+	if skipBOM(br) != nil {
+		return nil
+	}
+	b := make([]byte, 2)
+	br.Read(b)
+	if b[0] != '#' || b[1] != '!' {
+		return nil
 	}
 
-	cmd = binfmt.Command(".")
-	if err := testArgs(cmd.Args, []string{"."}); err != nil {
-		t.Error(err)
+	l, err := br.ReadString('\n')
+	switch err {
+	case nil, io.EOF:
+	default:
+		return nil
 	}
+	l = strings.TrimSpace(l)
+	var name string
+	switch _, err := os.Stat(l); {
+	case err == nil:
+		name = l
+	case strings.HasPrefix(l, "/usr/bin/env "):
+		name = strings.TrimSpace(l[12:])
+	default:
+		return nil
+	}
+	return exec.Command(name, args...)
 }
 
-func testArgs(g, e []string) error {
-	if len(g) == len(e) {
-		i := 0
-		for ; i < len(e) && g[i] == e[i]; i++ {
+var boms = [][]byte{
+	{0xEE, 0xBB, 0xBF},       // UTF-8
+	{0xFF, 0xFE},             // UTF-16LE
+	{0xFE, 0xFF},             // UTF-16BE
+	{0xFF, 0xFE, 0x00, 0x00}, // UTF-32LE
+	{0x00, 0x00, 0xFE, 0xFF}, // UTF-32BE
+}
+
+func skipBOM(br *bufio.Reader) (err error) {
+L:
+	for _, bom := range boms {
+		var b []byte
+		b, err = br.Peek(len(bom))
+		if err != nil {
+			return
 		}
-		if i == len(e) {
-			return nil
+		for i := range bom {
+			if b[i] != bom[i] {
+				continue L
+			}
 		}
+		_, err = br.Read(b)
+		break
 	}
-	return fmt.Errorf("expected %#v, got %#v", e, g)
-}
-
-func write(name, data string) error {
-	return ioutil.WriteFile(name, []byte(data), 0666)
-}
-
-func mkdtemp() (string, error) {
-	return ioutil.TempDir("", "go.binfmt.test")
+	return
 }

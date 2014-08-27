@@ -28,4 +28,5 @@ package binfmt
 
 func init() {
 	Register("extension", extension)
+	Register("script", script)
 }

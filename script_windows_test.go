@@ -1,5 +1,5 @@
 //
-// go.binfmt :: binfmt_test.go
+// go.binfmt :: script_windows_test.go
 //
 //   Copyright (c) 2014 Akinori Hattori <hattya@gmail.com>
 //
@@ -28,40 +28,51 @@ package binfmt_test
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/hattya/go.binfmt"
 )
 
-func TestCommand(t *testing.T) {
-	cmd := binfmt.Command("go", "version")
-	if err := testArgs(cmd.Args, []string{"go", "version"}); err != nil {
+func TestScript(t *testing.T) {
+	dir, err := mkdtemp()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	script := filepath.Join(dir, "script")
+	python := filepath.Join(dir, "python.exe")
+
+	if err := write(script, fmt.Sprintf("#! %s\n", python)); err != nil {
+		t.Fatal(err)
+	}
+	cmd := binfmt.Command(script)
+	if err := testArgs(cmd.Args, []string{script}); err != nil {
+		t.Error(err)
+	}
+	if err := write(python, ""); err != nil {
+		t.Fatal(err)
+	}
+	cmd = binfmt.Command(script)
+	if err := testArgs(cmd.Args, []string{python, script}); err != nil {
 		t.Error(err)
 	}
 
-	cmd = binfmt.Command(".")
-	if err := testArgs(cmd.Args, []string{"."}); err != nil {
+	if err := write(script, "#! /usr/bin/env python\n"); err != nil {
+		t.Fatal(err)
+	}
+	cmd = binfmt.Command(script)
+	if err := testArgs(cmd.Args, []string{"python", script}); err != nil {
 		t.Error(err)
 	}
-}
 
-func testArgs(g, e []string) error {
-	if len(g) == len(e) {
-		i := 0
-		for ; i < len(e) && g[i] == e[i]; i++ {
-		}
-		if i == len(e) {
-			return nil
-		}
+	if err := write(script, "\xEE\xBB\xBF#! /usr/bin/env python\n"); err != nil {
+		t.Fatal(err)
 	}
-	return fmt.Errorf("expected %#v, got %#v", e, g)
-}
-
-func write(name, data string) error {
-	return ioutil.WriteFile(name, []byte(data), 0666)
-}
-
-func mkdtemp() (string, error) {
-	return ioutil.TempDir("", "go.binfmt.test")
+	cmd = binfmt.Command(script)
+	if err := testArgs(cmd.Args, []string{"python", script}); err != nil {
+		t.Error(err)
+	}
 }
