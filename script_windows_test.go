@@ -42,6 +42,9 @@ func TestScript(t *testing.T) {
 	}
 	defer os.RemoveAll(dir)
 
+	defer os.Setenv("PATH", os.Getenv("PATH"))
+	os.Setenv("PATH", dir)
+
 	script := filepath.Join(dir, "script")
 	python := filepath.Join(dir, "python.exe")
 
@@ -52,14 +55,25 @@ func TestScript(t *testing.T) {
 	if err := testArgs(cmd.Args, []string{script}); err != nil {
 		t.Error(err)
 	}
+	if err := write(script, "#! /usr/bin/env python\n"); err != nil {
+		t.Fatal(err)
+	}
+	cmd = binfmt.Command(script)
+	if err := testArgs(cmd.Args, []string{script}); err != nil {
+		t.Error(err)
+	}
+
 	if err := write(python, ""); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := write(script, fmt.Sprintf("#! %s\n", python)); err != nil {
 		t.Fatal(err)
 	}
 	cmd = binfmt.Command(script)
 	if err := testArgs(cmd.Args, []string{python, script}); err != nil {
 		t.Error(err)
 	}
-
 	if err := write(script, "#! /usr/bin/env python\n"); err != nil {
 		t.Fatal(err)
 	}

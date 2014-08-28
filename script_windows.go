@@ -59,6 +59,9 @@ func script(r io.Reader, args []string) *exec.Cmd {
 		name = l
 	case strings.HasPrefix(l, "/usr/bin/env "):
 		name = strings.TrimSpace(l[12:])
+		if _, err := exec.LookPath(name); err != nil {
+			return nil
+		}
 	default:
 		return nil
 	}
