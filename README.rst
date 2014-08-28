@@ -30,6 +30,9 @@ Usage
 
    func main() {
    	cmd := binfmt.Command("rst2html.py", "README.rst", "README.html")
+   	cmd.Stdin = os.Stdin
+   	cmd.Stdout = os.Stdout
+   	cmd.Stderr = os.Stderr
    	if err := cmd.Run(); err != nil {
    		fmt.Fprintln(os.Stderr, err)
    		os.Exit(1)
