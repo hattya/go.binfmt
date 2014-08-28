@@ -26,4 +26,8 @@
 
 package binfmt
 
+func NewHRESULT(hr uint32) error {
+	return hresult(hr)
+}
+
 var EvalCommand = evalCommand
