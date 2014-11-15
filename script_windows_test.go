@@ -36,7 +36,7 @@ import (
 )
 
 func TestScript(t *testing.T) {
-	dir, err := mkdtemp()
+	dir, err := tempDir()
 	if err != nil {
 		t.Fatal(err)
 	}

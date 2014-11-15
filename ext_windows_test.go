@@ -41,23 +41,6 @@ var (
 	ProgramFiles = os.Getenv("ProgramFiles")
 )
 
-func TestHRESULT(t *testing.T) {
-	hr := binfmt.NewHRESULT(0)
-	if g, e := hr.Error(), "0x00000000"; g != e {
-		t.Errorf("expected %v, got %q", e, g)
-	}
-
-	hr = binfmt.NewHRESULT(1)
-	if g, e := hr.Error(), "0x00000001"; g != e {
-		t.Errorf("expected %v, got %q", e, g)
-	}
-
-	hr = binfmt.NewHRESULT(0x80070483)
-	if g, e := hr.Error(), "0x80070483"; g == e {
-		t.Errorf("expected error message, got %q", g)
-	}
-}
-
 func TestExtension(t *testing.T) {
 	cmd := binfmt.Command("a.txt")
 	if err := testArgs(cmd.Args, []string{filepath.Join(SystemRoot, "system32", "NOTEPAD.EXE"), "a.txt"}); err != nil {
@@ -107,5 +90,22 @@ func TestEvalCommand(t *testing.T) {
 	args = binfmt.EvalCommand(fmt.Sprintf(`%s %%2`, notepad), []string{})
 	if err := testArgs(args, []string{}); err != nil {
 		t.Error(err)
+	}
+}
+
+func TestHRESULT(t *testing.T) {
+	hr := binfmt.NewHRESULT(0)
+	if g, e := hr.Error(), "0x00000000"; g != e {
+		t.Errorf("expected %v, got %q", e, g)
+	}
+
+	hr = binfmt.NewHRESULT(1)
+	if g, e := hr.Error(), "0x00000001"; g != e {
+		t.Errorf("expected %v, got %q", e, g)
+	}
+
+	hr = binfmt.NewHRESULT(0x80070483)
+	if g, e := hr.Error(), "0x80070483"; g == e {
+		t.Errorf("expected error message, got %q", g)
 	}
 }

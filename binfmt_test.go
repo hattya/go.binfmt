@@ -62,6 +62,6 @@ func write(name, data string) error {
 	return ioutil.WriteFile(name, []byte(data), 0666)
 }
 
-func mkdtemp() (string, error) {
+func tempDir() (string, error) {
 	return ioutil.TempDir("", "go.binfmt.test")
 }

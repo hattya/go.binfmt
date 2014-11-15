@@ -37,46 +37,6 @@ import (
 	"unsafe"
 )
 
-var (
-	shlwapi           = syscall.NewLazyDLL("shlwapi")
-	pAssocQueryString = shlwapi.NewProc("AssocQueryStringW")
-)
-
-// type HRESULT
-type hresult uint32
-
-func (hr hresult) Error() string {
-	i := uint32(hr)
-	if 1 < i {
-		flags := uint32(syscall.FORMAT_MESSAGE_FROM_SYSTEM | syscall.FORMAT_MESSAGE_ARGUMENT_ARRAY | syscall.FORMAT_MESSAGE_IGNORE_INSERTS)
-		b := make([]uint16, 300)
-		if _, err := syscall.FormatMessage(flags, 0, i, 0, b, nil); err == nil {
-			return strings.TrimSpace(syscall.UTF16ToString(b))
-		}
-	}
-	return fmt.Sprintf("0x%08x", i)
-}
-
-const (
-	_S_OK hresult = iota
-	_S_FALSE
-)
-
-// enum ASSOCF
-type assocf int32
-
-const _ASSOCF_NOTRUNCATE assocf = 0x00000020
-
-// enum ASSOCSTR
-type assocstr int32
-
-const _ASSOCSTR_COMMAND assocstr = 1
-
-func assocQueryString(flags assocf, str assocstr, assoc, extra, out *uint16, size *uint32) error {
-	r0, _, _ := pAssocQueryString.Call(uintptr(flags), uintptr(str), uintptr(unsafe.Pointer(assoc)), uintptr(unsafe.Pointer(extra)), uintptr(unsafe.Pointer(out)), uintptr(unsafe.Pointer(size)))
-	return hresult(r0)
-}
-
 func extension(args []string) *exec.Cmd {
 	ext := filepath.Ext(args[0])
 	switch ext {
@@ -152,4 +112,45 @@ func commandFields(s string) []string {
 		}
 		return !q && unicode.IsSpace(r)
 	})
+}
+
+var (
+	shlwapi = syscall.NewLazyDLL("shlwapi")
+
+	pAssocQueryString = shlwapi.NewProc("AssocQueryStringW")
+)
+
+// type HRESULT
+type hresult uint32
+
+func (hr hresult) Error() string {
+	i := uint32(hr)
+	if 1 < i {
+		flags := uint32(syscall.FORMAT_MESSAGE_FROM_SYSTEM | syscall.FORMAT_MESSAGE_ARGUMENT_ARRAY | syscall.FORMAT_MESSAGE_IGNORE_INSERTS)
+		b := make([]uint16, 300)
+		if _, err := syscall.FormatMessage(flags, 0, i, 0, b, nil); err == nil {
+			return strings.TrimSpace(syscall.UTF16ToString(b))
+		}
+	}
+	return fmt.Sprintf("0x%08x", i)
+}
+
+const (
+	_S_OK hresult = iota
+	_S_FALSE
+)
+
+// enum ASSOCF
+type assocf int32
+
+const _ASSOCF_NOTRUNCATE assocf = 0x00000020
+
+// enum ASSOCSTR
+type assocstr int32
+
+const _ASSOCSTR_COMMAND assocstr = 1
+
+func assocQueryString(flags assocf, str assocstr, assoc, extra, out *uint16, size *uint32) error {
+	r0, _, _ := pAssocQueryString.Call(uintptr(flags), uintptr(str), uintptr(unsafe.Pointer(assoc)), uintptr(unsafe.Pointer(extra)), uintptr(unsafe.Pointer(out)), uintptr(unsafe.Pointer(size)))
+	return hresult(r0)
 }

@@ -28,6 +28,7 @@ package binfmt
 
 import (
 	"bufio"
+	"bytes"
 	"io"
 	"os"
 	"os/exec"
@@ -77,17 +78,14 @@ var boms = [][]byte{
 }
 
 func skipBOM(br *bufio.Reader) (err error) {
-L:
 	for _, bom := range boms {
 		var b []byte
 		b, err = br.Peek(len(bom))
-		if err != nil {
+		switch {
+		case err != nil:
 			return
-		}
-		for i := range bom {
-			if b[i] != bom[i] {
-				continue L
-			}
+		case !bytes.Equal(bom, b):
+			continue
 		}
 		_, err = br.Read(b)
 		break
