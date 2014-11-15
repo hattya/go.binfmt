@@ -3,6 +3,9 @@ go.binfmt
 
 An extension library for `os/exec`_.
 
+.. image:: https://drone.io/github.com/hattya/go.binfmt/status.png
+   :target: https://drone.io/github.com/hattya/go.binfmt/latest
+
 .. _os/exec: https://golang.org/pkg/os/exec/
 
 
