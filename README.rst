@@ -6,11 +6,14 @@ An extension library for `os/exec`_.
 .. image:: https://drone.io/github.com/hattya/go.binfmt/status.png
    :target: https://drone.io/github.com/hattya/go.binfmt/latest
 
+.. image:: https://ci.appveyor.com/api/projects/status/uhkkibn9gen71du9?svg=true
+   :target: https://ci.appveyor.com/project/hattya/go-binfmt
+
 .. _os/exec: https://golang.org/pkg/os/exec/
 
 
-Install
--------
+Installation
+------------
 
 .. code:: console
 
