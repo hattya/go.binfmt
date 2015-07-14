@@ -1,7 +1,7 @@
 //
 // go.binfmt :: binfmt.go
 //
-//   Copyright (c) 2014 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2015 Akinori Hattori <hattya@gmail.com>
 //
 //   Permission is hereby granted, free of charge, to any person
 //   obtaining a copy of this software and associated documentation files
@@ -30,10 +30,12 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"sync"
 )
 
 func Command(name string, arg ...string) *exec.Cmd {
+	name = filepath.FromSlash(name)
 	args := append([]string{name}, arg...)
 	f, err := os.Open(name)
 	if err == nil {
