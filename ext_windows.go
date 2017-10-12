@@ -1,7 +1,7 @@
 //
 // go.binfmt :: binfmt_windows.go
 //
-//   Copyright (c) 2014 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2017 Akinori Hattori <hattya@gmail.com>
 //
 //   Permission is hereby granted, free of charge, to any person
 //   obtaining a copy of this software and associated documentation files
@@ -32,9 +32,10 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"syscall"
 	"unicode"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
 func extension(args []string) *exec.Cmd {
@@ -43,7 +44,7 @@ func extension(args []string) *exec.Cmd {
 	case "", ".":
 		return nil
 	}
-	assoc, err := syscall.UTF16PtrFromString(ext)
+	assoc, err := windows.UTF16PtrFromString(ext)
 	if err != nil {
 		return nil
 	}
@@ -56,7 +57,7 @@ func extension(args []string) *exec.Cmd {
 		return nil
 	}
 
-	command := evalCommand(syscall.UTF16ToString(out), args)
+	command := evalCommand(windows.UTF16ToString(out), args)
 	if len(command) < 2 {
 		return nil
 	}
@@ -115,7 +116,7 @@ func commandFields(s string) []string {
 }
 
 var (
-	shlwapi = syscall.NewLazyDLL("shlwapi")
+	shlwapi = windows.NewLazySystemDLL("shlwapi.dll")
 
 	pAssocQueryString = shlwapi.NewProc("AssocQueryStringW")
 )
@@ -126,10 +127,10 @@ type hresult uint32
 func (hr hresult) Error() string {
 	i := uint32(hr)
 	if 1 < i {
-		flags := uint32(syscall.FORMAT_MESSAGE_FROM_SYSTEM | syscall.FORMAT_MESSAGE_ARGUMENT_ARRAY | syscall.FORMAT_MESSAGE_IGNORE_INSERTS)
+		flags := uint32(windows.FORMAT_MESSAGE_FROM_SYSTEM | windows.FORMAT_MESSAGE_ARGUMENT_ARRAY | windows.FORMAT_MESSAGE_IGNORE_INSERTS)
 		b := make([]uint16, 300)
-		if _, err := syscall.FormatMessage(flags, 0, i, 0, b, nil); err == nil {
-			return strings.TrimSpace(syscall.UTF16ToString(b))
+		if _, err := windows.FormatMessage(flags, 0, i, 0, b, nil); err == nil {
+			return strings.TrimSpace(windows.UTF16ToString(b))
 		}
 	}
 	return fmt.Sprintf("0x%08x", i)
