@@ -27,6 +27,7 @@
 package binfmt
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"path/filepath"
@@ -38,7 +39,7 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-func extension(args []string) *exec.Cmd {
+func extension(ctx context.Context, args []string) *exec.Cmd {
 	ext := filepath.Ext(args[0])
 	switch ext {
 	case "", ".":
@@ -61,7 +62,7 @@ func extension(args []string) *exec.Cmd {
 	if len(command) < 2 {
 		return nil
 	}
-	return exec.Command(command[0], command[1:]...)
+	return exec.CommandContext(ctx, command[0], command[1:]...)
 }
 
 func evalCommand(s string, args []string) []string {

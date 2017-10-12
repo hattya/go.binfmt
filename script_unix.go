@@ -30,12 +30,13 @@ package binfmt
 
 import (
 	"bufio"
+	"context"
 	"io"
 	"os/exec"
 	"strings"
 )
 
-func script(r io.Reader, args []string) *exec.Cmd {
+func script(ctx context.Context, r io.Reader, args []string) *exec.Cmd {
 	br := bufio.NewReader(r)
 	// check #!
 	b := make([]byte, 2)
@@ -52,5 +53,5 @@ func script(r io.Reader, args []string) *exec.Cmd {
 	if len(args) < 2 {
 		return nil
 	}
-	return exec.Command(args[0], args[1:]...)
+	return exec.CommandContext(ctx, args[0], args[1:]...)
 }

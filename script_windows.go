@@ -29,6 +29,7 @@ package binfmt
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"io"
 	"os"
 	"os/exec"
@@ -37,7 +38,7 @@ import (
 
 const env = "/usr/bin/env "
 
-func script(r io.Reader, args []string) *exec.Cmd {
+func script(ctx context.Context, r io.Reader, args []string) *exec.Cmd {
 	br := bufio.NewReader(r)
 	// check #!
 	if skipBOM(br) != nil {
@@ -66,7 +67,7 @@ func script(r io.Reader, args []string) *exec.Cmd {
 	default:
 		return nil
 	}
-	return exec.Command(name, args...)
+	return exec.CommandContext(ctx, name, args...)
 }
 
 var boms = [][]byte{
