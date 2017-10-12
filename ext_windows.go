@@ -81,7 +81,7 @@ func evalCommand(s string, args []string) []string {
 		}
 	}
 	if !ok {
-		return []string{}
+		return nil
 	}
 	// eval
 	n := len(args)
@@ -92,13 +92,12 @@ func evalCommand(s string, args []string) []string {
 				command = append(command[:j], args[i:]...)
 				break
 			}
-			switch v, err := strconv.ParseInt(a[1:], 10, 0); {
-			case err != nil || int(v) != i+1 || n < int(v):
-				return []string{}
-			default:
-				command[j] = args[i]
-				i++
+			v, err := strconv.ParseInt(a[1:], 10, 0)
+			if err != nil || int(v) != i+1 || n < int(v) {
+				return nil
 			}
+			command[j] = args[i]
+			i++
 		}
 	}
 	return command
@@ -122,7 +121,7 @@ var (
 )
 
 // type HRESULT
-type hresult uint32
+type hresult int32
 
 func (hr hresult) Error() string {
 	i := uint32(hr)

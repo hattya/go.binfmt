@@ -1,7 +1,7 @@
 //
 // go.binfmt :: binfmt_test.go
 //
-//   Copyright (c) 2014 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2017 Akinori Hattori <hattya@gmail.com>
 //
 //   Permission is hereby granted, free of charge, to any person
 //   obtaining a copy of this software and associated documentation files
@@ -27,38 +27,26 @@
 package binfmt_test
 
 import (
-	"fmt"
 	"io/ioutil"
+	"reflect"
 	"testing"
 
 	"github.com/hattya/go.binfmt"
 )
 
 func TestCommand(t *testing.T) {
-	cmd := binfmt.Command("go", "version")
-	if err := testArgs(cmd.Args, []string{"go", "version"}); err != nil {
-		t.Error(err)
-	}
-
-	cmd = binfmt.Command(".")
-	if err := testArgs(cmd.Args, []string{"."}); err != nil {
-		t.Error(err)
+	for _, args := range [][]string{
+		{"go", "version"},
+		{"."},
+	} {
+		cmd := binfmt.Command(args[0], args[1:]...)
+		if g, e := cmd.Args, args; !reflect.DeepEqual(g, e) {
+			t.Errorf("expected %v, got %v", e, g)
+		}
 	}
 }
 
-func testArgs(g, e []string) error {
-	if len(g) == len(e) {
-		i := 0
-		for ; i < len(e) && g[i] == e[i]; i++ {
-		}
-		if i == len(e) {
-			return nil
-		}
-	}
-	return fmt.Errorf("expected %#v, got %#v", e, g)
-}
-
-func write(name, data string) error {
+func writeFile(name, data string) error {
 	return ioutil.WriteFile(name, []byte(data), 0666)
 }
 

@@ -1,7 +1,7 @@
 //
 // go.binfmt :: script_unix_test.go
 //
-//   Copyright (c) 2014 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2017 Akinori Hattori <hattya@gmail.com>
 //
 //   Permission is hereby granted, free of charge, to any person
 //   obtaining a copy of this software and associated documentation files
@@ -32,6 +32,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/hattya/go.binfmt"
@@ -47,19 +48,25 @@ func TestScript(t *testing.T) {
 	script := filepath.Join(dir, "script")
 	sh := filepath.Join(dir, "sh")
 
-	if err := write(script, fmt.Sprintf("#! %s\n", sh)); err != nil {
-		t.Fatal(err)
-	}
-	cmd := binfmt.Command(script)
-	if err := testArgs(cmd.Args, []string{sh, script}); err != nil {
-		t.Error(err)
-	}
-
-	if err := write(script, "#!\n"); err != nil {
-		t.Fatal(err)
-	}
-	cmd = binfmt.Command(script)
-	if err := testArgs(cmd.Args, []string{script}); err != nil {
-		t.Error(err)
+	for _, tt := range []struct {
+		data string
+		args []string
+	}{
+		{
+			data: fmt.Sprintf("#! %v\n", sh),
+			args: []string{sh, script},
+		},
+		{
+			data: "#!\n",
+			args: []string{script},
+		},
+	} {
+		if err := writeFile(script, tt.data); err != nil {
+			t.Fatal(err)
+		}
+		cmd := binfmt.Command(script)
+		if g, e := cmd.Args, tt.args; !reflect.DeepEqual(g, e) {
+			t.Errorf("expected %v, got %v", e, g)
+		}
 	}
 }

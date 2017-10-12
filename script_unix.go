@@ -1,7 +1,7 @@
 //
 // go.binfmt :: script_unix.go
 //
-//   Copyright (c) 2014 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2017 Akinori Hattori <hattya@gmail.com>
 //
 //   Permission is hereby granted, free of charge, to any person
 //   obtaining a copy of this software and associated documentation files
@@ -45,9 +45,7 @@ func script(r io.Reader, args []string) *exec.Cmd {
 	}
 
 	l, err := br.ReadString('\n')
-	switch err {
-	case nil, io.EOF:
-	default:
+	if err != nil && err != io.EOF {
 		return nil
 	}
 	args = append(strings.Fields(strings.TrimSpace(l)), args...)

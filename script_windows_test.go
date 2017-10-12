@@ -1,7 +1,7 @@
 //
 // go.binfmt :: script_windows_test.go
 //
-//   Copyright (c) 2014 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2017 Akinori Hattori <hattya@gmail.com>
 //
 //   Permission is hereby granted, free of charge, to any person
 //   obtaining a copy of this software and associated documentation files
@@ -30,10 +30,16 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/hattya/go.binfmt"
 )
+
+type scriptTest struct {
+	data string
+	args []string
+}
 
 func TestScript(t *testing.T) {
 	dir, err := tempDir()
@@ -48,45 +54,61 @@ func TestScript(t *testing.T) {
 	script := filepath.Join(dir, "script")
 	python := filepath.Join(dir, "python.exe")
 
-	if err := write(script, fmt.Sprintf("#! %s\n", python)); err != nil {
-		t.Fatal(err)
-	}
-	cmd := binfmt.Command(script)
-	if err := testArgs(cmd.Args, []string{script}); err != nil {
-		t.Error(err)
-	}
-	if err := write(script, "#! /usr/bin/env python\n"); err != nil {
-		t.Fatal(err)
-	}
-	cmd = binfmt.Command(script)
-	if err := testArgs(cmd.Args, []string{script}); err != nil {
-		t.Error(err)
-	}
-
-	if err := write(python, ""); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := write(script, fmt.Sprintf("#! %s\n", python)); err != nil {
-		t.Fatal(err)
-	}
-	cmd = binfmt.Command(script)
-	if err := testArgs(cmd.Args, []string{python, script}); err != nil {
-		t.Error(err)
-	}
-	if err := write(script, "#! /usr/bin/env python\n"); err != nil {
-		t.Fatal(err)
-	}
-	cmd = binfmt.Command(script)
-	if err := testArgs(cmd.Args, []string{"python", script}); err != nil {
-		t.Error(err)
+	for _, tt := range []scriptTest{
+		{
+			data: fmt.Sprintf("#! %v\n", python),
+			args: []string{script},
+		},
+		{
+			data: fmt.Sprintf("\xee\xbb\xbf#! %v\n", python),
+			args: []string{script},
+		},
+		{
+			data: "#! /usr/bin/env python",
+			args: []string{script},
+		},
+		{
+			data: "\xee\xbb\xbf#! /usr/bin/env python",
+			args: []string{script},
+		},
+	} {
+		if err := writeFile(script, tt.data); err != nil {
+			t.Fatal(err)
+		}
+		cmd := binfmt.Command(script)
+		if g, e := cmd.Args, tt.args; !reflect.DeepEqual(g, e) {
+			t.Errorf("expected %v, got %v", e, g)
+		}
 	}
 
-	if err := write(script, "\xEE\xBB\xBF#! /usr/bin/env python\n"); err != nil {
+	if err := writeFile(python, ""); err != nil {
 		t.Fatal(err)
 	}
-	cmd = binfmt.Command(script)
-	if err := testArgs(cmd.Args, []string{"python", script}); err != nil {
-		t.Error(err)
+
+	for _, tt := range []scriptTest{
+		{
+			data: fmt.Sprintf("#! %v\n", python),
+			args: []string{python, script},
+		},
+		{
+			data: fmt.Sprintf("\xee\xbb\xbf#! %v\n", python),
+			args: []string{python, script},
+		},
+		{
+			data: "#! /usr/bin/env python\n",
+			args: []string{"python", script},
+		},
+		{
+			data: "\xee\xbb\xbf#! /usr/bin/env python\n",
+			args: []string{"python", script},
+		},
+	} {
+		if err := writeFile(script, tt.data); err != nil {
+			t.Fatal(err)
+		}
+		cmd := binfmt.Command(script)
+		if g, e := cmd.Args, tt.args; !reflect.DeepEqual(g, e) {
+			t.Errorf("expected %v, got %v", e, g)
+		}
 	}
 }

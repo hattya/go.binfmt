@@ -1,7 +1,7 @@
 //
 // go.binfmt :: script_windows.go
 //
-//   Copyright (c) 2014 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2017 Akinori Hattori <hattya@gmail.com>
 //
 //   Permission is hereby granted, free of charge, to any person
 //   obtaining a copy of this software and associated documentation files
@@ -35,6 +35,8 @@ import (
 	"strings"
 )
 
+const env = "/usr/bin/env "
+
 func script(r io.Reader, args []string) *exec.Cmd {
 	br := bufio.NewReader(r)
 	// check #!
@@ -48,9 +50,7 @@ func script(r io.Reader, args []string) *exec.Cmd {
 	}
 
 	l, err := br.ReadString('\n')
-	switch err {
-	case nil, io.EOF:
-	default:
+	if err != nil && err != io.EOF {
 		return nil
 	}
 	l = strings.TrimSpace(l)
@@ -58,8 +58,8 @@ func script(r io.Reader, args []string) *exec.Cmd {
 	switch _, err := os.Stat(l); {
 	case err == nil:
 		name = l
-	case strings.HasPrefix(l, "/usr/bin/env "):
-		name = strings.TrimSpace(l[12:])
+	case strings.HasPrefix(l, env):
+		name = strings.TrimSpace(l[len(env):])
 		if _, err := exec.LookPath(name); err != nil {
 			return nil
 		}
@@ -70,11 +70,11 @@ func script(r io.Reader, args []string) *exec.Cmd {
 }
 
 var boms = [][]byte{
-	{0xEE, 0xBB, 0xBF},       // UTF-8
-	{0xFF, 0xFE},             // UTF-16LE
-	{0xFE, 0xFF},             // UTF-16BE
-	{0xFF, 0xFE, 0x00, 0x00}, // UTF-32LE
-	{0x00, 0x00, 0xFE, 0xFF}, // UTF-32BE
+	{0xee, 0xbb, 0xbf},       // UTF-8
+	{0xff, 0xfe},             // UTF-16LE
+	{0xfe, 0xff},             // UTF-16BE
+	{0xff, 0xfe, 0x00, 0x00}, // UTF-32LE
+	{0x00, 0x00, 0xfe, 0xff}, // UTF-32BE
 }
 
 func skipBOM(br *bufio.Reader) (err error) {

@@ -1,7 +1,7 @@
 //
 // go.binfmt :: binfmt_windows_test.go
 //
-//   Copyright (c) 2014 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2017 Akinori Hattori <hattya@gmail.com>
 //
 //   Permission is hereby granted, free of charge, to any person
 //   obtaining a copy of this software and associated documentation files
@@ -30,6 +30,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/hattya/go.binfmt"
@@ -42,70 +43,77 @@ var (
 )
 
 func TestExtension(t *testing.T) {
-	cmd := binfmt.Command("a.txt")
-	if err := testArgs(cmd.Args, []string{filepath.Join(SystemRoot, "system32", "NOTEPAD.EXE"), "a.txt"}); err != nil {
-		t.Error(err)
-	}
-
-	cmd = binfmt.Command("a.bat", "1", "2")
-	if err := testArgs(cmd.Args, []string{"a.bat", "1", "2"}); err != nil {
-		t.Error(err)
+	for _, tt := range []struct {
+		in, out []string
+	}{
+		{
+			in:  []string{"a.txt"},
+			out: []string{filepath.Join(SystemRoot, "system32", "NOTEPAD.EXE"), "a.txt"},
+		},
+		{
+			in:  []string{"a.bat", "1", "2"},
+			out: []string{"a.bat", "1", "2"},
+		},
+	} {
+		cmd := binfmt.Command(tt.in[0], tt.in[1:]...)
+		if g, e := cmd.Args, tt.out; !reflect.DeepEqual(g, e) {
+			t.Errorf("expected %v, got %v", e, g)
+		}
 	}
 }
 
 func TestEvalCommand(t *testing.T) {
+	python1 := filepath.Join(SystemDrive, "PythonXY", "python.exe")
+	python2 := filepath.Join(ProgramFiles, "PythonXY", "python.exe")
 	rst2html := []string{"rst2html.py", "README.rst", "README.html"}
-
-	python := filepath.Join(SystemDrive, "PythonXY", "python.exe")
-	args := binfmt.EvalCommand(fmt.Sprintf(`"%s" "%%1" %%*`, python), rst2html)
-	if err := testArgs(args, append([]string{python}, rst2html...)); err != nil {
-		t.Error(err)
-	}
-	python = filepath.Join(ProgramFiles, "PythonXY", "python.exe")
-	args = binfmt.EvalCommand(fmt.Sprintf(`"%s" "%%1" %%*`, python), rst2html)
-	if err := testArgs(args, append([]string{python}, rst2html...)); err != nil {
-		t.Error(err)
-	}
-
-	python = filepath.Join(SystemDrive, "PythonXY", "python")
-	args = binfmt.EvalCommand(fmt.Sprintf(`"%s" "%%1" %%*`, python), rst2html)
-	if err := testArgs(args, []string{}); err != nil {
-		t.Error(err)
-	}
-	python = filepath.Join(ProgramFiles, "PythonXY", "python")
-	args = binfmt.EvalCommand(fmt.Sprintf(`"%s" "%%1" %%*`, python), rst2html)
-	if err := testArgs(args, []string{}); err != nil {
-		t.Error(err)
+	for _, tt := range []struct {
+		python string
+		args   []string
+	}{
+		{
+			python: python1,
+			args:   append([]string{python1}, rst2html...),
+		},
+		{
+			python: python2,
+			args:   append([]string{python2}, rst2html...),
+		},
+		{
+			python: python1[:len(python1)-4],
+		},
+		{
+			python: python2[:len(python2)-4],
+		},
+	} {
+		args := binfmt.EvalCommand(fmt.Sprintf(`"%s" "%%1" %%*`, tt.python), rst2html)
+		if g, e := args, tt.args; !reflect.DeepEqual(g, e) {
+			t.Errorf("expected %v, got %v", e, g)
+		}
 	}
 
 	notepad := filepath.Join(SystemRoot, "system32", "NOTEPAD.EXE")
-	args = binfmt.EvalCommand(fmt.Sprintf(`%s %%a`, notepad), []string{})
-	if err := testArgs(args, []string{}); err != nil {
-		t.Error(err)
-	}
-	args = binfmt.EvalCommand(fmt.Sprintf(`%s %%1`, notepad), []string{})
-	if err := testArgs(args, []string{}); err != nil {
-		t.Error(err)
-	}
-	args = binfmt.EvalCommand(fmt.Sprintf(`%s %%2`, notepad), []string{})
-	if err := testArgs(args, []string{}); err != nil {
-		t.Error(err)
+	for _, s := range []string{
+		`%s %%a`,
+		`%s %%1`,
+		`%s %%2`,
+	} {
+		args := binfmt.EvalCommand(fmt.Sprintf(s, notepad), nil)
+		if g, e := args, []string(nil); !reflect.DeepEqual(g, e) {
+			t.Errorf("expected %v, got %v", e, g)
+		}
 	}
 }
 
 func TestHRESULT(t *testing.T) {
-	hr := binfmt.NewHRESULT(0)
-	if g, e := hr.Error(), "0x00000000"; g != e {
-		t.Errorf("expected %v, got %q", e, g)
+	for i := uint32(0); i < 2; i++ {
+		hr := binfmt.NewHRESULT(i)
+		if g, e := hr.Error(), fmt.Sprintf("0x%08x", i); g != e {
+			t.Errorf("expected %v, got %q", e, g)
+		}
 	}
 
-	hr = binfmt.NewHRESULT(1)
-	if g, e := hr.Error(), "0x00000001"; g != e {
-		t.Errorf("expected %v, got %q", e, g)
-	}
-
-	hr = binfmt.NewHRESULT(0x80070483)
-	if g, e := hr.Error(), "0x80070483"; g == e {
+	hr := binfmt.NewHRESULT(0x80070483)
+	if g, e := hr.Error(), fmt.Sprintf("0x%08x", hr); g == e {
 		t.Errorf("expected error message, got %q", g)
 	}
 }
