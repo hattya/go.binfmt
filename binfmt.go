@@ -52,7 +52,7 @@ L:
 			if f == nil {
 				continue
 			}
-			if _, err := f.Seek(0, os.SEEK_SET); err != nil {
+			if _, err := f.Seek(0, io.SeekStart); err != nil {
 				break L
 			}
 			cmd = command(f, args)
@@ -60,7 +60,7 @@ L:
 			if f == nil {
 				continue
 			}
-			if _, err := f.Seek(0, os.SEEK_SET); err != nil {
+			if _, err := f.Seek(0, io.SeekStart); err != nil {
 				break L
 			}
 			cmd = command(ctx, f, args)
