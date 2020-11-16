@@ -51,7 +51,7 @@ func TestCommand(t *testing.T) {
 		},
 	}
 	for i, fn := range funcs {
-		binfmt.Register(string('a'+i), fn)
+		binfmt.Register(string(rune('a'+i)), fn)
 	}
 
 	script := filepath.Join(dir, "script")
