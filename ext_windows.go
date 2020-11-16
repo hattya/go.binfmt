@@ -53,7 +53,7 @@ func evalCommand(s string, args []string) []string {
 	var ok bool
 	if s[0] == '"' {
 		command = commandFields(s)
-		if 0 < len(command) {
+		if len(command) > 0 {
 			ok = strings.ToLower(filepath.Ext(command[0])) == ".exe"
 		}
 	} else {
@@ -76,7 +76,7 @@ func evalCommand(s string, args []string) []string {
 				break
 			}
 			v, err := strconv.ParseInt(a[1:], 10, 0)
-			if err != nil || int(v) != i+1 || n < int(v) {
+			if err != nil || int(v) != i+1 || int(v) > n {
 				return nil
 			}
 			command[j] = args[i]
@@ -108,7 +108,7 @@ type hresult int32
 
 func (hr hresult) Error() string {
 	i := uint32(hr)
-	if 1 < i {
+	if i > 1 {
 		flags := uint32(windows.FORMAT_MESSAGE_FROM_SYSTEM | windows.FORMAT_MESSAGE_ARGUMENT_ARRAY | windows.FORMAT_MESSAGE_IGNORE_INSERTS)
 		b := make([]uint16, 300)
 		if _, err := windows.FormatMessage(flags, 0, i, 0, b, nil); err == nil {

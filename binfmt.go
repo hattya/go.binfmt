@@ -41,7 +41,7 @@ func CommandContext(ctx context.Context, name string, arg ...string) *exec.Cmd {
 	}
 
 L:
-	for i := len(formats) - 1; 0 <= i; i-- {
+	for i := len(formats) - 1; i >= 0; i-- {
 		var cmd *exec.Cmd
 		switch command := formats[i].command.(type) {
 		case func([]string) *exec.Cmd:
