@@ -3,6 +3,9 @@ go.binfmt
 
 An extension library for `os/exec`_.
 
+.. image:: https://github.com/hattya/go.binfmt/workflows/CI/badge.svg
+   :target: https://github.com/hattya/go.binfmt/actions?query=workflow:CI
+
 .. image:: https://semaphoreci.com/api/v1/hattya/go-binfmt/branches/master/badge.svg
    :target: https://semaphoreci.com/hattya/go-binfmt
 
