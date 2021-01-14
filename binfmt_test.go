@@ -1,7 +1,7 @@
 //
 // go.binfmt :: binfmt_test.go
 //
-//   Copyright (c) 2014-2020 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2021 Akinori Hattori <hattya@gmail.com>
 //
 //   SPDX-License-Identifier: MIT
 //
@@ -98,7 +98,7 @@ func TestRegister(t *testing.T) {
 }
 
 func writeFile(name, data string) error {
-	return ioutil.WriteFile(name, []byte(data), 0666)
+	return ioutil.WriteFile(name, []byte(data), 0o666)
 }
 
 func tempDir() (string, error) {
