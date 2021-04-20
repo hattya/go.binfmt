@@ -102,5 +102,5 @@ func writeFile(name, data string) error {
 }
 
 func tempDir() (string, error) {
-	return ioutil.TempDir("", "go.binfmt.test")
+	return ioutil.TempDir("", "go.binfmt")
 }

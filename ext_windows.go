@@ -1,7 +1,7 @@
 //
 // go.binfmt :: binfmt_windows.go
 //
-//   Copyright (c) 2014-2020 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2021 Akinori Hattori <hattya@gmail.com>
 //
 //   SPDX-License-Identifier: MIT
 //
@@ -56,12 +56,9 @@ func evalCommand(s string, args []string) []string {
 		if len(command) > 0 {
 			ok = strings.ToLower(filepath.Ext(command[0])) == ".exe"
 		}
-	} else {
-		i := strings.Index(strings.ToLower(s), ".exe")
-		if i != -1 {
-			command = append([]string{s[:i+4]}, commandFields(s[i+4:])...)
-			ok = true
-		}
+	} else if i := strings.Index(strings.ToLower(s), ".exe"); i != -1 {
+		command = append([]string{s[:i+4]}, commandFields(s[i+4:])...)
+		ok = true
 	}
 	if !ok {
 		return nil
@@ -75,8 +72,7 @@ func evalCommand(s string, args []string) []string {
 				command = append(command[:j], args[i:]...)
 				break
 			}
-			v, err := strconv.ParseInt(a[1:], 10, 0)
-			if err != nil || int(v) != i+1 || int(v) > n {
+			if v, err := strconv.Atoi(a[1:]); err != nil || v != i+1 || v > n {
 				return nil
 			}
 			command[j] = args[i]
@@ -87,7 +83,7 @@ func evalCommand(s string, args []string) []string {
 }
 
 func commandFields(s string) []string {
-	q := false
+	var q bool
 	return strings.FieldsFunc(s, func(r rune) bool {
 		if r == '"' {
 			q = !q
