@@ -3,7 +3,7 @@
 An extension library for [`os/exec`](https://golang.org/pkg/os/exec/).
 
 [![pkg.go.dev](https://pkg.go.dev/badge/github.com/hattya/go.binfmt)](https://pkg.go.dev/github.com/hattya/go.binfmt)
-[![GitHub Actions](https://github.com/hattya/go.binfmt/workflows/CI/badge.svg)](https://github.com/hattya/go.binfmt/actions?query=workflow:CI)
+[![GitHub Actions](https://github.com/hattya/go.binfmt/actions/workflows/ci.yml/badge.svg)](https://github.com/hattya/go.binfmt/actions/workflows/ci.yml)
 [![Semaphore](https://semaphoreci.com/api/v1/hattya/go-binfmt/branches/master/badge.svg)](https://semaphoreci.com/hattya/go-binfmt)
 [![Appveyor](https://ci.appveyor.com/api/projects/status/uhkkibn9gen71du9/branch/master?svg=true)](https://ci.appveyor.com/project/hattya/go-binfmt)
 [![Codecov](https://codecov.io/gh/hattya/go.binfmt/branch/master/graph/badge.svg)](https://codecov.io/gh/hattya/go.binfmt)
