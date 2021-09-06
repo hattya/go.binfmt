@@ -1,7 +1,7 @@
 //
 // go.binfmt :: script_windows_test.go
 //
-//   Copyright (c) 2014-2020 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2021 Akinori Hattori <hattya@gmail.com>
 //
 //   SPDX-License-Identifier: MIT
 //
@@ -24,12 +24,7 @@ type scriptTest struct {
 }
 
 func TestScript(t *testing.T) {
-	dir, err := tempDir()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
-
+	dir := t.TempDir()
 	defer os.Setenv("PATH", os.Getenv("PATH"))
 	os.Setenv("PATH", dir)
 
@@ -54,7 +49,7 @@ func TestScript(t *testing.T) {
 			args: []string{script},
 		},
 	} {
-		if err := writeFile(script, tt.data); err != nil {
+		if err := file(script, tt.data); err != nil {
 			t.Fatal(err)
 		}
 		cmd := binfmt.Command(script)
@@ -63,7 +58,7 @@ func TestScript(t *testing.T) {
 		}
 	}
 
-	if err := writeFile(python, ""); err != nil {
+	if err := file(python, ""); err != nil {
 		t.Fatal(err)
 	}
 
@@ -85,7 +80,7 @@ func TestScript(t *testing.T) {
 			args: []string{"python", script},
 		},
 	} {
-		if err := writeFile(script, tt.data); err != nil {
+		if err := file(script, tt.data); err != nil {
 			t.Fatal(err)
 		}
 		cmd := binfmt.Command(script)

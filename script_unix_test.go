@@ -1,7 +1,7 @@
 //
 // go.binfmt :: script_unix_test.go
 //
-//   Copyright (c) 2014-2020 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2021 Akinori Hattori <hattya@gmail.com>
 //
 //   SPDX-License-Identifier: MIT
 //
@@ -12,7 +12,6 @@ package binfmt_test
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
@@ -21,12 +20,7 @@ import (
 )
 
 func TestScript(t *testing.T) {
-	dir, err := tempDir()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
-
+	dir := t.TempDir()
 	script := filepath.Join(dir, "script")
 	sh := filepath.Join(dir, "sh")
 
@@ -43,7 +37,7 @@ func TestScript(t *testing.T) {
 			args: []string{script},
 		},
 	} {
-		if err := writeFile(script, tt.data); err != nil {
+		if err := file(script, tt.data); err != nil {
 			t.Fatal(err)
 		}
 		cmd := binfmt.Command(script)

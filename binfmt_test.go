@@ -12,7 +12,6 @@ import (
 	"context"
 	"io"
 	"io/ioutil"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"reflect"
@@ -22,12 +21,6 @@ import (
 )
 
 func TestCommand(t *testing.T) {
-	dir, err := tempDir()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
-
 	restore := binfmt.Save()
 	defer restore()
 
@@ -54,8 +47,8 @@ func TestCommand(t *testing.T) {
 		binfmt.Register(string(rune('a'+i)), fn)
 	}
 
-	script := filepath.Join(dir, "script")
-	if err := writeFile(script, ""); err != nil {
+	script := filepath.Join(t.TempDir(), "script")
+	if err := file(script, ""); err != nil {
 		t.Fatal(err)
 	}
 
@@ -97,10 +90,6 @@ func TestRegister(t *testing.T) {
 	}()
 }
 
-func writeFile(name, data string) error {
+func file(name, data string) error {
 	return ioutil.WriteFile(name, []byte(data), 0o666)
-}
-
-func tempDir() (string, error) {
-	return ioutil.TempDir("", "go.binfmt")
 }
