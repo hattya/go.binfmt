@@ -1,6 +1,6 @@
 # go.binfmt
 
-An extension library for [`os/exec`](https://golang.org/pkg/os/exec/).
+An extension library for [`os/exec`](https://pkg.go.dev/os/exec).
 
 [![pkg.go.dev](https://pkg.go.dev/badge/github.com/hattya/go.binfmt)](https://pkg.go.dev/github.com/hattya/go.binfmt)
 [![GitHub Actions](https://github.com/hattya/go.binfmt/actions/workflows/ci.yml/badge.svg)](https://github.com/hattya/go.binfmt/actions/workflows/ci.yml)
