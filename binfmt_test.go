@@ -1,7 +1,7 @@
 //
 // go.binfmt :: binfmt_test.go
 //
-//   Copyright (c) 2014-2021 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2022 Akinori Hattori <hattya@gmail.com>
 //
 //   SPDX-License-Identifier: MIT
 //
@@ -11,7 +11,7 @@ package binfmt_test
 import (
 	"context"
 	"io"
-	"io/ioutil"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"reflect"
@@ -91,5 +91,5 @@ func TestRegister(t *testing.T) {
 }
 
 func file(name, data string) error {
-	return ioutil.WriteFile(name, []byte(data), 0o666)
+	return os.WriteFile(name, []byte(data), 0o666)
 }
