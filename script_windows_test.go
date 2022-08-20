@@ -1,7 +1,7 @@
 //
 // go.binfmt :: script_windows_test.go
 //
-//   Copyright (c) 2014-2021 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2022 Akinori Hattori <hattya@gmail.com>
 //
 //   SPDX-License-Identifier: MIT
 //
@@ -10,7 +10,6 @@ package binfmt_test
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
@@ -25,8 +24,7 @@ type scriptTest struct {
 
 func TestScript(t *testing.T) {
 	dir := t.TempDir()
-	defer os.Setenv("PATH", os.Getenv("PATH"))
-	os.Setenv("PATH", dir)
+	t.Setenv("PATH", dir)
 
 	script := filepath.Join(dir, "script")
 	python := filepath.Join(dir, "python.exe")
