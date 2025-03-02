@@ -1,7 +1,7 @@
 //
 // go.binfmt :: binfmt_windows_test.go
 //
-//   Copyright (c) 2014-2020 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2025 Akinori Hattori <hattya@gmail.com>
 //
 //   SPDX-License-Identifier: MIT
 //
@@ -87,7 +87,7 @@ func TestEvalCommand(t *testing.T) {
 }
 
 func TestHRESULT(t *testing.T) {
-	for i := uint32(0); i < 2; i++ {
+	for i := range uint32(2) {
 		hr := binfmt.NewHRESULT(i)
 		if g, e := hr.Error(), fmt.Sprintf("0x%08x", i); g != e {
 			t.Errorf("expected %v, got %q", e, g)

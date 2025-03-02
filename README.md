@@ -11,7 +11,7 @@ An extension library for [`os/exec`](https://pkg.go.dev/os/exec).
 ## Installation
 
 ```console
-$ go get -u github.com/hattya/go.binfmt
+$ go get github.com/hattya/go.binfmt
 ```
 
 
