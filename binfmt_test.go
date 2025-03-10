@@ -1,7 +1,7 @@
 //
 // go.binfmt :: binfmt_test.go
 //
-//   Copyright (c) 2014-2022 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2025 Akinori Hattori <hattya@gmail.com>
 //
 //   SPDX-License-Identifier: MIT
 //
@@ -25,7 +25,7 @@ func TestCommand(t *testing.T) {
 	defer restore()
 
 	v := 0
-	funcs := []interface{}{
+	funcs := []any{
 		func([]string) *exec.Cmd {
 			v |= 1 << 0
 			return nil

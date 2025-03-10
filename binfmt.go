@@ -1,7 +1,7 @@
 //
 // go.binfmt :: binfmt.go
 //
-//   Copyright (c) 2014-2020 Akinori Hattori <hattya@gmail.com>
+//   Copyright (c) 2014-2025 Akinori Hattori <hattya@gmail.com>
 //
 //   SPDX-License-Identifier: MIT
 //
@@ -82,7 +82,7 @@ type format struct {
 	command CommandFunc
 }
 
-type CommandFunc interface{}
+type CommandFunc any
 
 func Register(name string, command CommandFunc) {
 	mu.Lock()
